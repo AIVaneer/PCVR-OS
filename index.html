@@ -2,46 +2,63 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCVR OS V8</title>
+<title>PCVR OS v11.2</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 body{
 margin:0;
-font-family:-apple-system,Arial;
-background:#05070c;
+font-family:'Inter',system-ui;
+background:linear-gradient(135deg,#0a0c12,#02040a);
 color:white;
 overflow:hidden;
+height:100vh;
 }
 
 .container{display:flex;height:100vh;}
 
 .sidebar{
-width:200px;
-background:#020617;
-padding:14px;
+width:240px;
+background:rgba(2,6,23,.95);
+backdrop-filter:blur(20px);
+border-right:1px solid rgba(56,189,248,.2);
+padding:20px;
+display:flex;
+flex-direction:column;
 }
 
 .logo{
-font-size:22px;
+font-family:'Space Grotesk';
+font-size:28px;
+font-weight:700;
 color:#4ade80;
-margin-bottom:20px;
+margin-bottom:32px;
 }
 
 .nav-btn{
-width:100%;
-padding:14px;
+padding:14px 18px;
 margin:6px 0;
 border:none;
-border-radius:12px;
-background:#0f172a;
+border-radius:14px;
+background:rgba(15,23,42,.8);
 color:white;
 text-align:left;
-transition:.2s;
+transition:.25s;
+display:flex;
+gap:12px;
+cursor:pointer;
+}
+
+.nav-btn:hover{
+background:rgba(56,189,248,.15);
+transform:translateX(6px);
 }
 
 .nav-btn.active{
-background:#38bdf8;
+background:linear-gradient(90deg,#38bdf8,#22d3ee);
 color:black;
+font-weight:600;
 }
 
 .main{
@@ -53,11 +70,11 @@ overflow:hidden;
 .page{
 position:absolute;
 inset:0;
-padding:16px;
+padding:24px;
 overflow:auto;
 opacity:0;
 transform:translateX(40px);
-transition:.3s;
+transition:.35s;
 }
 
 .page.active{
@@ -66,70 +83,78 @@ transform:translateX(0);
 }
 
 .app{
-background:#0f172a;
-padding:16px;
-border-radius:16px;
-margin-bottom:12px;
+background:rgba(15,23,42,.85);
+padding:18px;
+border-radius:18px;
+margin-bottom:14px;
 display:flex;
 align-items:center;
-gap:12px;
-transition:.15s;
+gap:16px;
+cursor:pointer;
+transition:.2s;
+border:1px solid rgba(56,189,248,.1);
 }
 
-.app:active{transform:scale(.96);}
+.app:hover{
+transform:translateY(-4px) scale(1.02);
+border-color:#38bdf8;
+}
 
 .icon{
-width:50px;
-height:50px;
-border-radius:12px;
-background:#38bdf8;
+width:60px;
+height:60px;
+border-radius:16px;
+background:linear-gradient(135deg,#38bdf8,#22d3ee);
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:24px;
+font-size:30px;
 }
 
-.install-btn{
-margin-left:auto;
-background:#4ade80;
-border:none;
-padding:6px 12px;
-border-radius:10px;
-font-weight:bold;
+h2{
+font-family:'Space Grotesk';
+color:#67e8f9;
 }
 
 .window{
 position:fixed;
 inset:0;
-background:black;
+background:#05070c;
 display:none;
 flex-direction:column;
-z-index:10;
+z-index:100;
 }
 
 .window.active{display:flex;}
 
 .bar{
 background:#020617;
-padding:10px;
+padding:12px 20px;
 display:flex;
 justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #1e2937;
 }
 
-iframe{flex:1;border:none;}
+iframe{
+flex:1;
+border:none;
+background:black;
+}
 
 .xp-pop{
 position:fixed;
-top:20px;
-right:20px;
-background:#4ade80;
+top:30px;
+right:30px;
+background:linear-gradient(90deg,#4ade80,#22c55e);
 color:black;
-padding:10px 16px;
-border-radius:12px;
+padding:14px 22px;
+border-radius:14px;
+font-weight:bold;
 opacity:0;
-transform:translateY(-20px);
+transform:translateY(-30px);
 transition:.3s;
-z-index:20;
+z-index:200;
 }
 
 .xp-pop.show{
@@ -157,28 +182,27 @@ transform:translateY(0);
 
 <!-- PORTAL -->
 <div class="page active">
-<h2>PCVR Portal</h2>
+<h2>Welcome to the Ecosystem</h2>
 
 <div class="app" onclick="openPortal()">
 <div class="icon">🌐</div>
-Open Main Portal
+<div>Open Main Portal</div>
 </div>
+
 </div>
 
 <!-- ARCADE -->
 <div class="page">
 <h2>Arcade</h2>
 
-<div class="app">
+<div class="app" onclick="launch('./sky-burner.html','Sky Burner')">
 <div class="icon">🔥</div>
 Sky Burner
-<button class="install-btn" onclick="install(this,'sky')">Install</button>
 </div>
 
-<div class="app">
+<div class="app" onclick="launch('./level-11.html','Boss Logic')">
 <div class="icon">🧠</div>
 Boss Logic
-<button class="install-btn" onclick="install(this,'boss')">Install</button>
 </div>
 
 </div>
@@ -189,49 +213,38 @@ Boss Logic
 
 <div class="app" onclick="openPortal()">
 <div class="icon">🌍</div>
-Open Code Raiders Worlds
+Code Raiders Worlds
 </div>
 
 </div>
 
 <!-- RADIO -->
 <div class="page">
-<h2>Radio</h2>
+<h2>PCVR Radio</h2>
 
-<div class="app" onclick="playRadio()">
-<div class="icon">▶</div>Play
+<div class="app" onclick="launchRadio()">
+<div class="icon">🎧</div>
+<div>
+<strong>Launch Radio v11</strong><br>
+<small style="color:#67e8f9">Full neon system</small>
 </div>
-
-<div class="app" onclick="pauseRadio()">
-<div class="icon">⏸</div>Stop
 </div>
-
-<div class="app" onclick="prevStation()">
-<div class="icon">⏮</div>Previous
-</div>
-
-<div class="app" onclick="nextStation()">
-<div class="icon">⏭</div>Next
-</div>
-
-<div class="app" onclick="shuffleStation()">
-<div class="icon">🎲</div>Shuffle
-</div>
-
-<p id="stationLabel">Station: Loading...</p>
 
 </div>
 
 <!-- STATS -->
 <div class="page">
-<h2>Stats</h2>
+<h2>System Stats</h2>
+
 <p id="xp">XP: 0</p>
 <p id="lvl">Level: 1</p>
+
 </div>
 
 </div>
 </div>
 
+<!-- WINDOW -->
 <div class="window" id="win">
 <div class="bar">
 <span id="title">App</span>
@@ -240,158 +253,83 @@ Open Code Raiders Worlds
 <iframe id="frame"></iframe>
 </div>
 
-<div class="xp-pop" id="xpPop">+5 XP</div>
+<div class="xp-pop" id="xpPop">+10 XP</div>
 
 <script>
 
 /* DATA */
-let data=JSON.parse(localStorage.getItem("pcvr"))||{xp:0,installed:{},station:0};
-
-/* SOUND */
-function tap(){
-try{
-let ctx=new (window.AudioContext||window.webkitAudioContext)();
-let o=ctx.createOscillator();
-let g=ctx.createGain();
-o.connect(g); g.connect(ctx.destination);
-o.frequency.value=300;
-o.start();
-g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.1);
-}catch(e){}
-}
+let data = JSON.parse(localStorage.getItem("pcvr")) || {xp:0};
 
 /* XP */
 function addXP(){
-data.xp+=5;
-save();
+data.xp += 10;
+localStorage.setItem("pcvr", JSON.stringify(data));
 updateXP();
-showXP("+5 XP");
+showXP();
 }
 
 function updateXP(){
-xp.innerText="XP: "+data.xp;
-lvl.innerText="Level: "+Math.floor(data.xp/50+1);
+xp.innerText = "XP: " + data.xp;
+lvl.innerText = "Level: " + Math.floor(data.xp/50 + 1);
 }
 
-function showXP(txt){
-xpPop.innerText=txt;
+function showXP(){
 xpPop.classList.add("show");
 setTimeout(()=>xpPop.classList.remove("show"),1200);
-}
-
-function save(){
-localStorage.setItem("pcvr",JSON.stringify(data));
 }
 
 updateXP();
 
 /* NAV */
-let pages=document.querySelectorAll(".page");
-let index=0;
+let pages = document.querySelectorAll(".page");
+let currentPage = 0;
 
 function goPage(i){
-tap();
-pages[index].classList.remove("active");
-index=i;
-pages[index].classList.add("active");
+pages[currentPage].classList.remove("active");
+currentPage = i;
+pages[currentPage].classList.add("active");
 
-document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-document.querySelectorAll(".nav-btn")[i].classList.add("active");
-}
-
-/* SWIPE */
-let startX=0;
-main.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
-main.addEventListener("touchend",e=>{
-let diff=e.changedTouches[0].clientX-startX;
-if(diff>50 && index>0)goPage(index-1);
-if(diff<-50 && index<pages.length-1)goPage(index+1);
+document.querySelectorAll(".nav-btn").forEach((b,idx)=>{
+b.classList.toggle("active", idx===i);
 });
-
-/* PORTAL */
-function openPortal(){
-launch("https://aivaneer.github.io/PCVR-EdTech/code-raiders/portal.html","PCVR Portal");
 }
 
-/* GAME */
-function launch(url,title){
-frame.src=url;
-title.innerText=title;
+/* LAUNCH SYSTEM */
+function launch(url,name){
+frame.src = url;
+title.innerText = name;
 win.classList.add("active");
 addXP();
 }
 
+function launchRadio(){
+frame.src = "radio.html";
+title.innerText = "PCVR Radio";
+win.classList.add("active");
+addXP();
+}
+
+/* PORTAL */
+function openPortal(){
+launch("https://aivaneer.github.io/PCVR-EdTech/code-raiders/portal.html","Portal");
+}
+
+/* CLOSE */
 function closeGame(){
 win.classList.remove("active");
-frame.src="";
+setTimeout(()=>frame.src="",300);
 }
 
-/* INSTALL */
-function install(btn,id){
-tap();
-btn.innerText="Installing...";
-btn.disabled=true;
+/* SWIPE */
+let startX = 0;
 
-setTimeout(()=>{
-btn.innerText="Open";
-data.installed[id]=true;
-save();
-btn.onclick=()=>openPortal();
-addXP();
-},1000);
-}
+main.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
+main.addEventListener("touchend",e=>{
+let diff = e.changedTouches[0].clientX - startX;
 
-/* RADIO SYSTEM */
-const stations=[
-{name:"Deep Space One",url:"https://ice5.somafm.com/deepspaceone-128-mp3"},
-{name:"Groove Salad",url:"https://ice5.somafm.com/groovesalad-128-mp3"},
-{name:"Drone Zone",url:"https://ice5.somafm.com/dronezone-128-mp3"},
-{name:"Space Station Soma",url:"https://ice5.somafm.com/spacestation-128-mp3"},
-{name:"Beat Blender",url:"https://ice5.somafm.com/beatblender-128-mp3"}
-];
-
-let radio=new Audio();
-radio.loop=true;
-
-function loadStation(){
-radio.pause();
-radio.src=stations[data.station].url;
-radio.load();
-stationLabel.innerText="Station: "+stations[data.station].name;
-save();
-}
-
-function playRadio(){
-tap();
-loadStation();
-radio.play().catch(()=>alert("Tap again to enable audio"));
-}
-
-function pauseRadio(){
-tap();
-radio.pause();
-}
-
-function nextStation(){
-tap();
-data.station=(data.station+1)%stations.length;
-playRadio();
-}
-
-function prevStation(){
-tap();
-data.station=(data.station-1+stations.length)%stations.length;
-playRadio();
-}
-
-function shuffleStation(){
-tap();
-data.station=Math.floor(Math.random()*stations.length);
-playRadio();
-}
-
-/* INIT */
-loadStation();
+if(diff>80 && currentPage>0) goPage(currentPage-1);
+if(diff<-80 && currentPage<pages.length-1) goPage(currentPage+1);
+});
 
 </script>
 
