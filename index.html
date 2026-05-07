@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCVR OS V5</title>
+
+<style>
+body{
+margin:0;
+font-family:-apple-system,Arial;
+background:#05070c;
+color:white;
+overflow:hidden;
+}
+
+/* LAYOUT */
+.container{
+display:flex;
+height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+width:200px;
+background:#020617;
+padding:14px;
+}
+
+.logo{
+font-size:22px;
+color:#4ade80;
+margin-bottom:20px;
+}
+
+.nav-btn{
+width:100%;
+padding:14px;
+margin:6px 0;
+border:none;
+border-radius:12px;
+background:#0f172a;
+color:white;
+text-align:left;
+transition:.2s;
+}
+
+.nav-btn.active{
+background:#38bdf8;
+color:black;
+}
+
+/* MAIN */
+.main{
+flex:1;
+position:relative;
+overflow:hidden;
+}
+
+/* PAGE ANIMATION */
+.page{
+position:absolute;
+inset:0;
+padding:16px;
+overflow:auto;
+opacity:0;
+transform:translateX(40px);
+transition:.3s;
+}
+
+.page.active{
+opacity:1;
+transform:translateX(0);
+}
+
+/* APP */
+.app{
+background:#0f172a;
+padding:16px;
+border-radius:16px;
+margin-bottom:12px;
+display:flex;
+align-items:center;
+gap:12px;
+transition:.2s;
+}
+
+.app:active{
+transform:scale(.95);
+}
+
+/* ICON */
+.icon{
+width:50px;
+height:50px;
+border-radius:12px;
+background:#38bdf8;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+}
+
+/* BUTTON */
+.install-btn{
+margin-left:auto;
+background:#4ade80;
+border:none;
+padding:6px 12px;
+border-radius:10px;
+font-weight:bold;
+}
+
+/* WINDOW */
+.window{
+position:fixed;
+inset:0;
+background:black;
+display:none;
+flex-direction:column;
+z-index:10;
+}
+
+.window.active{display:flex;}
+
+.bar{
+background:#020617;
+padding:10px;
+display:flex;
+justify-content:space-between;
+}
+
+iframe{
+flex:1;
+border:none;
+}
+
+/* XP POP */
+.xp-pop{
+position:fixed;
+top:20px;
+right:20px;
+background:#4ade80;
+color:black;
+padding:10px 16px;
+border-radius:12px;
+opacity:0;
+transform:translateY(-20px);
+transition:.3s;
+z-index:20;
+}
+
+.xp-pop.show{
+opacity:1;
+transform:translateY(0);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="sidebar">
+<div class="logo">PCVR OS</div>
+
+<button class="nav-btn active" onclick="goPage(0)">🚀 Portal</button>
+<button class="nav-btn" onclick="goPage(1)">🎮 Arcade</button>
+<button class="nav-btn" onclick="goPage(2)">🌍 Worlds</button>
+<button class="nav-btn" onclick="goPage(3)">🎧 Radio</button>
+<button class="nav-btn" onclick="goPage(4)">📊 Stats</button>
+</div>
+
+<div class="main" id="main">
+
+<!-- PORTAL -->
+<div class="page active">
+<h2>PCVR Portal</h2>
+
+<div class="app" onclick="openPortal()">
+<div class="icon">🌐</div>
+Open PCVR Portal
+</div>
+
+</div>
+
+<!-- ARCADE -->
+<div class="page">
+<h2>Arcade</h2>
+
+<div class="app">
+<div class="icon">🔥</div>
+Sky Burner
+<button class="install-btn" onclick="install(this,'./sky-burner.html','Sky Burner')">Install</button>
+</div>
+
+<div class="app">
+<div class="icon">🧠</div>
+Boss Logic
+<button class="install-btn" onclick="install(this,'./level-11.html','Boss Logic')">Install</button>
+</div>
+
+</div>
+
+<!-- WORLDS -->
+<div class="page">
+<h2>Worlds</h2>
+
+<div class="app" onclick="launch('./index.html','World 1')">
+<div class="icon">🌍</div>
+World 1
+</div>
+
+<div class="app" onclick="launch('./level-4.html','World 2')">
+<div class="icon">🔥</div>
+World 2
+</div>
+
+</div>
+
+<!-- RADIO -->
+<div class="page">
+<h2>Radio</h2>
+
+<div class="app" onclick="playRadio()">
+<div class="icon">▶</div>
+Play Radio
+</div>
+
+<div class="app" onclick="pauseRadio()">
+<div class="icon">⏸</div>
+Stop Radio
+</div>
+
+</div>
+
+<!-- STATS -->
+<div class="page">
+<h2>Stats</h2>
+<p id="xp">XP: 0</p>
+</div>
+
+</div>
+</div>
+
+<!-- WINDOW -->
+<div class="window" id="win">
+<div class="bar">
+<span id="title">App</span>
+<button onclick="closeGame()">Close</button>
+</div>
+<iframe id="frame"></iframe>
+</div>
+
+<div class="xp-pop" id="xpPop">+5 XP</div>
+
+<script>
+
+/* DATA */
+let data=JSON.parse(localStorage.getItem("pcvr"))||{xp:0};
+
+/* XP */
+function addXP(){
+data.xp+=5;
+localStorage.setItem("pcvr",JSON.stringify(data));
+updateXP();
+showXP();
+}
+
+function updateXP(){
+document.getElementById("xp").innerText="XP: "+data.xp;
+}
+
+function showXP(){
+let pop=document.getElementById("xpPop");
+pop.classList.add("show");
+setTimeout(()=>pop.classList.remove("show"),1200);
+}
+
+updateXP();
+
+/* PAGES */
+let pages=document.querySelectorAll(".page");
+let index=0;
+
+function goPage(i){
+pages[index].classList.remove("active");
+index=i;
+pages[index].classList.add("active");
+
+document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+document.querySelectorAll(".nav-btn")[i].classList.add("active");
+}
+
+/* SWIPE */
+let startX=0;
+
+document.getElementById("main").addEventListener("touchstart",e=>{
+startX=e.touches[0].clientX;
+});
+
+document.getElementById("main").addEventListener("touchend",e=>{
+let diff=e.changedTouches[0].clientX-startX;
+
+if(diff>50 && index>0){goPage(index-1);}
+if(diff<-50 && index<pages.length-1){goPage(index+1);}
+});
+
+/* PORTAL */
+function openPortal(){
+launch("https://aivaneer.github.io/PCVR-EdTech/code-raiders/portal.html","PCVR Portal");
+}
+
+/* GAME */
+function launch(url,title){
+document.getElementById("frame").src=url;
+document.getElementById("title").innerText=title;
+document.getElementById("win").classList.add("active");
+addXP();
+}
+
+function closeGame(){
+document.getElementById("win").classList.remove("active");
+document.getElementById("frame").src="";
+}
+
+/* INSTALL */
+function install(btn,url,title){
+btn.innerText="Installing...";
+btn.disabled=true;
+
+setTimeout(()=>{
+btn.innerText="Open";
+btn.onclick=()=>launch(url,title);
+addXP();
+},1200);
+}
+
+/* RADIO */
+let audio=new Audio("https://ice5.somafm.com/deepspaceone-128-mp3");
+
+function playRadio(){audio.play();}
+function pauseRadio(){audio.pause();}
+
+</script>
+
+</body>
+</html>
