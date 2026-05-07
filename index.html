@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCVR OS V5</title>
+<title>PCVR OS V6</title>
 
 <style>
 body{
@@ -13,13 +13,8 @@ color:white;
 overflow:hidden;
 }
 
-/* LAYOUT */
-.container{
-display:flex;
-height:100vh;
-}
+.container{display:flex;height:100vh;}
 
-/* SIDEBAR */
 .sidebar{
 width:200px;
 background:#020617;
@@ -41,7 +36,6 @@ border-radius:12px;
 background:#0f172a;
 color:white;
 text-align:left;
-transition:.2s;
 }
 
 .nav-btn.active{
@@ -49,14 +43,12 @@ background:#38bdf8;
 color:black;
 }
 
-/* MAIN */
 .main{
 flex:1;
 position:relative;
 overflow:hidden;
 }
 
-/* PAGE ANIMATION */
 .page{
 position:absolute;
 inset:0;
@@ -72,7 +64,6 @@ opacity:1;
 transform:translateX(0);
 }
 
-/* APP */
 .app{
 background:#0f172a;
 padding:16px;
@@ -81,14 +72,8 @@ margin-bottom:12px;
 display:flex;
 align-items:center;
 gap:12px;
-transition:.2s;
 }
 
-.app:active{
-transform:scale(.95);
-}
-
-/* ICON */
 .icon{
 width:50px;
 height:50px;
@@ -100,7 +85,6 @@ justify-content:center;
 font-size:24px;
 }
 
-/* BUTTON */
 .install-btn{
 margin-left:auto;
 background:#4ade80;
@@ -110,7 +94,6 @@ border-radius:10px;
 font-weight:bold;
 }
 
-/* WINDOW */
 .window{
 position:fixed;
 inset:0;
@@ -134,7 +117,6 @@ flex:1;
 border:none;
 }
 
-/* XP POP */
 .xp-pop{
 position:fixed;
 top:20px;
@@ -178,7 +160,7 @@ transform:translateY(0);
 
 <div class="app" onclick="openPortal()">
 <div class="icon">🌐</div>
-Open PCVR Portal
+Open Main Portal
 </div>
 
 </div>
@@ -190,13 +172,13 @@ Open PCVR Portal
 <div class="app">
 <div class="icon">🔥</div>
 Sky Burner
-<button class="install-btn" onclick="install(this,'./sky-burner.html','Sky Burner')">Install</button>
+<button class="install-btn" onclick="install(this,'sky')">Install</button>
 </div>
 
 <div class="app">
 <div class="icon">🧠</div>
 Boss Logic
-<button class="install-btn" onclick="install(this,'./level-11.html','Boss Logic')">Install</button>
+<button class="install-btn" onclick="install(this,'boss')">Install</button>
 </div>
 
 </div>
@@ -205,14 +187,9 @@ Boss Logic
 <div class="page">
 <h2>Worlds</h2>
 
-<div class="app" onclick="launch('./index.html','World 1')">
+<div class="app" onclick="openPortal()">
 <div class="icon">🌍</div>
-World 1
-</div>
-
-<div class="app" onclick="launch('./level-4.html','World 2')">
-<div class="icon">🔥</div>
-World 2
+Open Code Raiders Worlds
 </div>
 
 </div>
@@ -237,12 +214,12 @@ Stop Radio
 <div class="page">
 <h2>Stats</h2>
 <p id="xp">XP: 0</p>
+<p id="lvl">Level: 1</p>
 </div>
 
 </div>
 </div>
 
-<!-- WINDOW -->
 <div class="window" id="win">
 <div class="bar">
 <span id="title">App</span>
@@ -256,18 +233,19 @@ Stop Radio
 <script>
 
 /* DATA */
-let data=JSON.parse(localStorage.getItem("pcvr"))||{xp:0};
+let data=JSON.parse(localStorage.getItem("pcvr"))||{xp:0,installed:{}};
 
-/* XP */
+/* XP SYSTEM */
 function addXP(){
 data.xp+=5;
-localStorage.setItem("pcvr",JSON.stringify(data));
+save();
 updateXP();
 showXP();
 }
 
 function updateXP(){
 document.getElementById("xp").innerText="XP: "+data.xp;
+document.getElementById("lvl").innerText="Level: "+Math.floor(data.xp/50+1);
 }
 
 function showXP(){
@@ -276,9 +254,13 @@ pop.classList.add("show");
 setTimeout(()=>pop.classList.remove("show"),1200);
 }
 
+function save(){
+localStorage.setItem("pcvr",JSON.stringify(data));
+}
+
 updateXP();
 
-/* PAGES */
+/* NAV */
 let pages=document.querySelectorAll(".page");
 let index=0;
 
@@ -294,15 +276,15 @@ document.querySelectorAll(".nav-btn")[i].classList.add("active");
 /* SWIPE */
 let startX=0;
 
-document.getElementById("main").addEventListener("touchstart",e=>{
+main.addEventListener("touchstart",e=>{
 startX=e.touches[0].clientX;
 });
 
-document.getElementById("main").addEventListener("touchend",e=>{
+main.addEventListener("touchend",e=>{
 let diff=e.changedTouches[0].clientX-startX;
 
-if(diff>50 && index>0){goPage(index-1);}
-if(diff<-50 && index<pages.length-1){goPage(index+1);}
+if(diff>50 && index>0)goPage(index-1);
+if(diff<-50 && index<pages.length-1)goPage(index+1);
 });
 
 /* PORTAL */
@@ -323,16 +305,19 @@ document.getElementById("win").classList.remove("active");
 document.getElementById("frame").src="";
 }
 
-/* INSTALL */
-function install(btn,url,title){
+/* INSTALL SYSTEM */
+function install(btn,id){
 btn.innerText="Installing...";
 btn.disabled=true;
 
 setTimeout(()=>{
 btn.innerText="Open";
-btn.onclick=()=>launch(url,title);
+data.installed[id]=true;
+save();
+
+btn.onclick=()=>openPortal();
 addXP();
-},1200);
+},1000);
 }
 
 /* RADIO */
