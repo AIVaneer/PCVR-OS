@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCVR OS V7</title>
+<title>PCVR OS V8</title>
 
 <style>
 body{
@@ -76,9 +76,7 @@ gap:12px;
 transition:.15s;
 }
 
-.app:active{
-transform:scale(.96);
-}
+.app:active{transform:scale(.96);}
 
 .icon{
 width:50px;
@@ -118,10 +116,7 @@ display:flex;
 justify-content:space-between;
 }
 
-iframe{
-flex:1;
-border:none;
-}
+iframe{flex:1;border:none;}
 
 .xp-pop{
 position:fixed;
@@ -168,7 +163,6 @@ transform:translateY(0);
 <div class="icon">🌐</div>
 Open Main Portal
 </div>
-
 </div>
 
 <!-- ARCADE -->
@@ -201,36 +195,30 @@ Open Code Raiders Worlds
 </div>
 
 <!-- RADIO -->
-<!-- RADIO -->
 <div class="page">
 <h2>Radio</h2>
 
 <div class="app" onclick="playRadio()">
-<div class="icon">▶</div>
-Play Radio
+<div class="icon">▶</div>Play
 </div>
 
 <div class="app" onclick="pauseRadio()">
-<div class="icon">⏸</div>
-Stop Radio
+<div class="icon">⏸</div>Stop
 </div>
 
 <div class="app" onclick="prevStation()">
-<div class="icon">⏮</div>
-Previous Station
+<div class="icon">⏮</div>Previous
 </div>
 
 <div class="app" onclick="nextStation()">
-<div class="icon">⏭</div>
-Next Station
+<div class="icon">⏭</div>Next
 </div>
 
 <div class="app" onclick="shuffleStation()">
-<div class="icon">🎲</div>
-Shuffle Station
+<div class="icon">🎲</div>Shuffle
 </div>
 
-<p id="stationLabel">Station: Deep Space One</p>
+<p id="stationLabel">Station: Loading...</p>
 
 </div>
 
@@ -257,9 +245,9 @@ Shuffle Station
 <script>
 
 /* DATA */
-let data=JSON.parse(localStorage.getItem("pcvr"))||{xp:0,installed:{}};
+let data=JSON.parse(localStorage.getItem("pcvr"))||{xp:0,installed:{},station:0};
 
-/* SOUND (tap feedback) */
+/* SOUND */
 function tap(){
 try{
 let ctx=new (window.AudioContext||window.webkitAudioContext)();
@@ -272,7 +260,7 @@ g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.1);
 }catch(e){}
 }
 
-/* XP SYSTEM */
+/* XP */
 function addXP(){
 data.xp+=5;
 save();
@@ -281,15 +269,14 @@ showXP("+5 XP");
 }
 
 function updateXP(){
-document.getElementById("xp").innerText="XP: "+data.xp;
-document.getElementById("lvl").innerText="Level: "+Math.floor(data.xp/50+1);
+xp.innerText="XP: "+data.xp;
+lvl.innerText="Level: "+Math.floor(data.xp/50+1);
 }
 
 function showXP(txt){
-let pop=document.getElementById("xpPop");
-pop.innerText=txt;
-pop.classList.add("show");
-setTimeout(()=>pop.classList.remove("show"),1200);
+xpPop.innerText=txt;
+xpPop.classList.add("show");
+setTimeout(()=>xpPop.classList.remove("show"),1200);
 }
 
 function save(){
@@ -323,25 +310,23 @@ if(diff<-50 && index<pages.length-1)goPage(index+1);
 
 /* PORTAL */
 function openPortal(){
-tap();
 launch("https://aivaneer.github.io/PCVR-EdTech/code-raiders/portal.html","PCVR Portal");
 }
 
 /* GAME */
 function launch(url,title){
-tap();
-document.getElementById("frame").src=url;
-document.getElementById("title").innerText=title;
-document.getElementById("win").classList.add("active");
+frame.src=url;
+title.innerText=title;
+win.classList.add("active");
 addXP();
 }
 
 function closeGame(){
-document.getElementById("win").classList.remove("active");
-document.getElementById("frame").src="";
+win.classList.remove("active");
+frame.src="";
 }
 
-/* INSTALL SYSTEM */
+/* INSTALL */
 function install(btn,id){
 tap();
 btn.innerText="Installing...";
@@ -351,46 +336,62 @@ setTimeout(()=>{
 btn.innerText="Open";
 data.installed[id]=true;
 save();
-
 btn.onclick=()=>openPortal();
 addXP();
 },1000);
 }
 
-/* RESTORE INSTALLED APPS */
-document.querySelectorAll(".install-btn").forEach((btn,i)=>{
-let id=i===0?"sky":"boss";
-if(data.installed[id]){
-btn.innerText="Open";
-btn.onclick=()=>openPortal();
-}
-});
+/* RADIO SYSTEM */
+const stations=[
+{name:"Deep Space One",url:"https://ice5.somafm.com/deepspaceone-128-mp3"},
+{name:"Groove Salad",url:"https://ice5.somafm.com/groovesalad-128-mp3"},
+{name:"Drone Zone",url:"https://ice5.somafm.com/dronezone-128-mp3"},
+{name:"Space Station Soma",url:"https://ice5.somafm.com/spacestation-128-mp3"},
+{name:"Beat Blender",url:"https://ice5.somafm.com/beatblender-128-mp3"}
+];
 
-/* RADIO (FIXED) */
 let radio=new Audio();
-radio.src="https://ice5.somafm.com/deepspaceone-128-mp3";
 radio.loop=true;
+
+function loadStation(){
+radio.pause();
+radio.src=stations[data.station].url;
+radio.load();
+stationLabel.innerText="Station: "+stations[data.station].name;
+save();
+}
 
 function playRadio(){
 tap();
-radio.pause();
-radio.load();
-
-let p=radio.play();
-if(p!==undefined){
-p.then(()=>{
-showXP("Radio Playing 🎧");
-}).catch(()=>{
-alert("Tap again to start radio");
-});
-}
+loadStation();
+radio.play().catch(()=>alert("Tap again to enable audio"));
 }
 
 function pauseRadio(){
 tap();
 radio.pause();
-showXP("Radio Stopped");
 }
+
+function nextStation(){
+tap();
+data.station=(data.station+1)%stations.length;
+playRadio();
+}
+
+function prevStation(){
+tap();
+data.station=(data.station-1+stations.length)%stations.length;
+playRadio();
+}
+
+function shuffleStation(){
+tap();
+data.station=Math.floor(Math.random()*stations.length);
+playRadio();
+}
+
+/* INIT */
+loadStation();
 
 </script>
 
