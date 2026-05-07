@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCVR OS V6</title>
+<title>PCVR OS V7</title>
 
 <style>
 body{
@@ -36,6 +36,7 @@ border-radius:12px;
 background:#0f172a;
 color:white;
 text-align:left;
+transition:.2s;
 }
 
 .nav-btn.active{
@@ -72,6 +73,11 @@ margin-bottom:12px;
 display:flex;
 align-items:center;
 gap:12px;
+transition:.15s;
+}
+
+.app:active{
+transform:scale(.96);
 }
 
 .icon{
@@ -235,12 +241,25 @@ Stop Radio
 /* DATA */
 let data=JSON.parse(localStorage.getItem("pcvr"))||{xp:0,installed:{}};
 
+/* SOUND (tap feedback) */
+function tap(){
+try{
+let ctx=new (window.AudioContext||window.webkitAudioContext)();
+let o=ctx.createOscillator();
+let g=ctx.createGain();
+o.connect(g); g.connect(ctx.destination);
+o.frequency.value=300;
+o.start();
+g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.1);
+}catch(e){}
+}
+
 /* XP SYSTEM */
 function addXP(){
 data.xp+=5;
 save();
 updateXP();
-showXP();
+showXP("+5 XP");
 }
 
 function updateXP(){
@@ -248,8 +267,9 @@ document.getElementById("xp").innerText="XP: "+data.xp;
 document.getElementById("lvl").innerText="Level: "+Math.floor(data.xp/50+1);
 }
 
-function showXP(){
+function showXP(txt){
 let pop=document.getElementById("xpPop");
+pop.innerText=txt;
 pop.classList.add("show");
 setTimeout(()=>pop.classList.remove("show"),1200);
 }
@@ -265,6 +285,7 @@ let pages=document.querySelectorAll(".page");
 let index=0;
 
 function goPage(i){
+tap();
 pages[index].classList.remove("active");
 index=i;
 pages[index].classList.add("active");
@@ -275,25 +296,22 @@ document.querySelectorAll(".nav-btn")[i].classList.add("active");
 
 /* SWIPE */
 let startX=0;
-
-main.addEventListener("touchstart",e=>{
-startX=e.touches[0].clientX;
-});
-
+main.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
 main.addEventListener("touchend",e=>{
 let diff=e.changedTouches[0].clientX-startX;
-
 if(diff>50 && index>0)goPage(index-1);
 if(diff<-50 && index<pages.length-1)goPage(index+1);
 });
 
 /* PORTAL */
 function openPortal(){
+tap();
 launch("https://aivaneer.github.io/PCVR-EdTech/code-raiders/portal.html","PCVR Portal");
 }
 
 /* GAME */
 function launch(url,title){
+tap();
 document.getElementById("frame").src=url;
 document.getElementById("title").innerText=title;
 document.getElementById("win").classList.add("active");
@@ -307,6 +325,7 @@ document.getElementById("frame").src="";
 
 /* INSTALL SYSTEM */
 function install(btn,id){
+tap();
 btn.innerText="Installing...";
 btn.disabled=true;
 
@@ -320,11 +339,40 @@ addXP();
 },1000);
 }
 
-/* RADIO */
-let audio=new Audio("https://ice5.somafm.com/deepspaceone-128-mp3");
+/* RESTORE INSTALLED APPS */
+document.querySelectorAll(".install-btn").forEach((btn,i)=>{
+let id=i===0?"sky":"boss";
+if(data.installed[id]){
+btn.innerText="Open";
+btn.onclick=()=>openPortal();
+}
+});
 
-function playRadio(){audio.play();}
-function pauseRadio(){audio.pause();}
+/* RADIO (FIXED) */
+let radio=new Audio();
+radio.src="https://ice5.somafm.com/deepspaceone-128-mp3";
+radio.loop=true;
+
+function playRadio(){
+tap();
+radio.pause();
+radio.load();
+
+let p=radio.play();
+if(p!==undefined){
+p.then(()=>{
+showXP("Radio Playing 🎧");
+}).catch(()=>{
+alert("Tap again to start radio");
+});
+}
+}
+
+function pauseRadio(){
+tap();
+radio.pause();
+showXP("Radio Stopped");
+}
 
 </script>
 
